@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 //代码清单4-5生产者拦截器示例
 public class ProducerInterceptorPrefix implements ProducerInterceptor<String, String> {
-    private AtomicInteger sendSuccess = new AtomicInteger(0);
-    private AtomicInteger sendFailure = new AtomicInteger(0);
+    private final AtomicInteger sendSuccess = new AtomicInteger(0);
+    private final AtomicInteger sendFailure = new AtomicInteger(0);
 
     @Override
     public ProducerRecord<String, String> onSend(ProducerRecord<String, String> record) {

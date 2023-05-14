@@ -8,6 +8,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -24,27 +25,22 @@ public class CompanySerializer implements Serializer<Company> {
             return null;
         }
         byte[] name, address;
-        try {
-            if (data.getName() != null) {
-                name = data.getName().getBytes("UTF-8");
-            } else {
-                name = new byte[0];
-            }
-            if (data.getAddress() != null) {
-                address = data.getAddress().getBytes("UTF-8");
-            } else {
-                address = new byte[0];
-            }
-            ByteBuffer buffer = ByteBuffer.allocate(4 + 4 + name.length + address.length);
-            buffer.putInt(name.length);
-            buffer.put(name);
-            buffer.putInt(address.length);
-            buffer.put(address);
-            return buffer.array();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        if (data.getName() != null) {
+            name = data.getName().getBytes(StandardCharsets.UTF_8);
+        } else {
+            name = new byte[0];
         }
-        return new byte[0];
+        if (data.getAddress() != null) {
+            address = data.getAddress().getBytes(StandardCharsets.UTF_8);
+        } else {
+            address = new byte[0];
+        }
+        ByteBuffer buffer = ByteBuffer.allocate(4 + 4 + name.length + address.length);
+        buffer.putInt(name.length);
+        buffer.put(name);
+        buffer.putInt(address.length);
+        buffer.put(address);
+        return buffer.array();
     }
 
     @Override

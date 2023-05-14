@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,12 +33,8 @@ public class CompanyDeserializer implements Deserializer<Company> {
         byte[] addressBytes = new byte[addressLen];
         buffer.get(addressBytes);
 
-        try {
-            name = new String(nameBytes, "UTF-8");
-            address = new String(addressBytes, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new SerializationException("Error occur when deserializing!");
-        }
+        name = new String(nameBytes, StandardCharsets.UTF_8);
+        address = new String(addressBytes, StandardCharsets.UTF_8);
 
         return new Company(name, address);
     }

@@ -7,7 +7,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
 
 //代码清单4-5生产者拦截器示例
 public class ProducerInterceptorPrefixPlus implements ProducerInterceptor<String, String> {
