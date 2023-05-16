@@ -197,4 +197,105 @@ public class ConsumerOffset {
         }
 
     }
+
+    //seek方法的使用示例--指定偏移量消费
+    //在执行 seek() 方法之前需要先执行一次 poll() 方法，等到分配到分区之后才可以重置消费位置
+    public void seek() {
+        Properties props = initConfig();
+        //代码清单12-1
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList(topic));
+        //poll()中的时间参数太短，会导致获取不到分区，太长会产生不必要的等待
+        //poll(Duration.ofMillis(0))时，会获取不到消息
+        consumer.poll(Duration.ofMillis(10000));
+        Set<TopicPartition> assignment = consumer.assignment();
+        for (TopicPartition tp : assignment) {
+            //未分配到的分区执行 seek() 方法会报错
+            consumer.seek(tp, 10);
+        }
+        while (true) {
+            ConsumerRecords<String, String> records =
+                    consumer.poll(Duration.ofMillis(1000));
+            //consume the record.
+        }
+    }
+
+    //使用seek()方法从分区末尾消费
+    //尾部消息指的是将要写入最新消息的位置，不是当前消息的位置
+    public void endOffsets() {
+        Properties props = initConfig();
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList(topic));
+        Set<TopicPartition> assignment = new HashSet<>();
+        while (assignment.size() == 0) {
+            consumer.poll(Duration.ofMillis(100));
+            assignment = consumer.assignment();
+        }
+        Map<TopicPartition, Long> offsets = consumer.endOffsets(assignment);
+        for (TopicPartition tp : assignment) {
+            consumer.seek(tp, offsets.get(tp));
+        }
+    }
+
+    //offsetsForTimes
+    //获取指定时间消息的偏移量
+    public void offsetsForTimes() {
+        Properties props = initConfig();
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList(topic));
+        Set<TopicPartition> assignment = new HashSet<>();
+        while (assignment.size() == 0) {
+            consumer.poll(Duration.ofMillis(100));
+            assignment = consumer.assignment();
+        }
+        Map<TopicPartition, Long> timestampToSearch = new HashMap<>();
+        for (TopicPartition tp : assignment) {
+            timestampToSearch.put(tp, System.currentTimeMillis() - 24 * 3600 * 1000);
+        }
+        Map<TopicPartition, OffsetAndTimestamp> offsets =
+                consumer.offsetsForTimes(timestampToSearch);
+        for (TopicPartition tp : assignment) {
+            OffsetAndTimestamp offsetAndTimestamp = offsets.get(tp);
+            if (offsetAndTimestamp != null) {
+                consumer.seek(tp, offsetAndTimestamp.offset());
+            }
+        }
+    }
+
+    //消费位移保存在DB中
+    public void consumentOffsetDb() {
+        Properties props = initConfig();
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList(topic));
+        Set<TopicPartition> assignment = new HashSet<>();
+        while (assignment.size() == 0) {
+            consumer.poll(Duration.ofMillis(100));
+            assignment = consumer.assignment();
+        }
+        for (TopicPartition tp : assignment) {
+            long offset = getOffsetFromDB(tp);//从DB中读取消费位移
+            consumer.seek(tp, offset);
+        }
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+            for (TopicPartition partition : records.partitions()) {
+                List<ConsumerRecord<String, String>> partitionRecords = records.records(partition);
+                for (ConsumerRecord<String, String> record : partitionRecords) {
+                    //process the record.
+                }
+                long lastConsumedOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
+                //将消费位移存储在DB中
+                storeOffsetToDB(partition, lastConsumedOffset + 1);
+            }
+        }
+    }
+
+    long getOffsetFromDB(TopicPartition tp) {
+        return 1L;
+    }
+
+    long storeOffsetToDB(TopicPartition tp, long offset) {
+        return 1L;
+    }
+
 }
