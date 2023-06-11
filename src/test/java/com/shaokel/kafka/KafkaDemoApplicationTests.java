@@ -42,7 +42,7 @@ class KafkaDemoApplicationTests {
 
     // 消费者客户端示例代码
     @Test
-    void consumer() {
+    void consumer() throws InterruptedException {
         Properties properties = new Properties();
         properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         properties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -55,6 +55,7 @@ class KafkaDemoApplicationTests {
         consumer.subscribe(Collections.singletonList(topic));
         //循环消费消息
         while (true) {
+            Thread.sleep(1000);
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
             for (ConsumerRecord<String, String> record : records) {
                 System.out.println("循环消费消息" + record.value());

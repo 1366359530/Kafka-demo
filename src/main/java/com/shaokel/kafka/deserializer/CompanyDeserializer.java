@@ -1,11 +1,10 @@
-package com.shaokel.kafka.demos.deserializer;
+package com.shaokel.kafka.deserializer;
 
-import com.shaokel.kafka.demos.serializer.Company;
+import com.shaokel.kafka.serializer.Company;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

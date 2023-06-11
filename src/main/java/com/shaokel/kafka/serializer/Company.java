@@ -1,4 +1,4 @@
-package com.shaokel.kafka.demos.serializer;
+package com.shaokel.kafka.serializer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

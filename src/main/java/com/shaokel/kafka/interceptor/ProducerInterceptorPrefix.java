@@ -1,4 +1,4 @@
-package com.shaokel.kafka.demos.producerInterceptor;
+package com.shaokel.kafka.interceptor;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
